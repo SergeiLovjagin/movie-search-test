@@ -6,9 +6,22 @@ const moviesAjax = axios.create({
     baseURL: api.baseUrl
 });
 
-export default class Movies {
+export type MovieType = {
+    Poster: string
+    Title: string
+    Type: string
+    Year: string
+    imdbID: string
+}
+type ResponseType = {
+    Response: string
+    Search: Array<MovieType>
+    totalResults: string
+    Error?: string
+}
 
-    alreadySearched = {}
+export default class Movies {
+    // alreadySearched = {}
 
     constructor() {
         info('Initialise Movies API.');
@@ -16,11 +29,14 @@ export default class Movies {
 
     // Search for a movie from API by its title.
     async search(title = '', year?) {
-
-        let exist: boolean = Object.keys(this.alreadySearched).some(el => el === (title + ' ' + year))
-        if (exist) {
-            return this.alreadySearched[title + ' ' + year]
-        } else {
+        if(localStorage.getItem(title) !== null){
+            return JSON.parse(localStorage.getItem(title))
+        }
+        // let exist: boolean = Object.keys(this.alreadySearched).some(el => el === (title + ' ' + year))
+        // if (exist) {
+        //     return this.alreadySearched[title + ' ' + year]
+        // }
+            else {
 
             info(`Search for "${title}" from Movies API.`);
 
@@ -31,12 +47,13 @@ export default class Movies {
                 searchQuery += `&y=${year}`;
             }
 
-            const {data} = await moviesAjax.get(searchQuery);
+            const {data} = await moviesAjax.get<ResponseType>(searchQuery);
+            localStorage.setItem(title, JSON.stringify(data.Search))
 
             if (data.Error) {
                 throw data.Error;
             }
-            this.alreadySearched[`${title} ${year}`] = data.Search
+            //this.alreadySearched[`${title} ${year}`] = data.Search
             return data.Search;
         }
     }
@@ -48,12 +65,14 @@ export default class Movies {
             throw data.Error;
         }
 
-        const uniqueWords = data.Plot.replace(/[.,\s]/g, ' ')
-            .split(' ')
-            .filter(Boolean)
-            .map(el => el.toLowerCase())
-            .filter((el, i, arr) => arr.indexOf(el) === arr.lastIndexOf(el))
-            .length
+        // const uniqueWords = data.Plot.replace(/[.,\s]/g, ' ')
+        //     .split(' ')
+        //     .filter(Boolean)
+        //     .map(el => el.toLowerCase())
+        //     .filter((el, i, arr) => arr.indexOf(el) === arr.lastIndexOf(el))
+        //     .length
+
+        const uniqueWords = Array.from(new Set(data.Plot.split(' '))).length
 
         return {
             title: data.Title,

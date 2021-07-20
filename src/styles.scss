@@ -70,23 +70,29 @@ html {
 }
 
 #search-results {
+    display: flex;
     padding: 10px 0;
     width: 50%;
-    float: left;
+    flex-wrap: wrap;
 
-    & > div {
+    & > button {
         background: #FFFFFF;
         margin: 5px 10px;
         padding: 10px;
-        border-radius: $borderRadius;
+        border-radius: 5px;
         font-size: 0.875rem;
         font-weight: 700;
-
+        width: 100%;
+        border: none;
         &:hover {
             cursor: pointer;
             background: rgba(255, 255, 255, 0.7);
         }
     }
+}
+
+.group {
+    display: flex;
 }
 
 #movie-details {
